@@ -15,6 +15,10 @@ func (o *Offsets) Add(index int32, offset *Offset) {
 	o.offsets[index] = offset
 }
 
+func (o *Offsets) Get(index int32) *Offset {
+	return o.offsets[index]
+}
+
 func createOffsets(maxSize int32, path string) (*Offsets, error) {
 	file, err := CreateFile(path)
 	if err != nil {

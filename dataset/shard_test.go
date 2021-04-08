@@ -1,10 +1,11 @@
 package dataset
 
 import (
+	"bytes"
 	"testing"
 )
 
-func Test_Create(t *testing.T) {
+func Test_Shard_Create(t *testing.T) {
 	createShard(1, 100, "./", "shard_1")
 
 	if !FileExists("./shard_1.data") {
@@ -16,15 +17,18 @@ func Test_Create(t *testing.T) {
 	}
 }
 
-func Test_Add(t *testing.T) {
+func Test_Shard_Add(t *testing.T) {
 	r1 := []byte("record 1")
 	r2 := []byte("record 2")
 
 	s1, _ := createShard(1, 100, "./", "shard_1")
-	s1.Add(r1)
-	s1.Add(r2)
+	id1, _ := s1.Add(r1)
+	id2, _ := s1.Add(r2)
 
-	s2, _ := createShard(2, 100, "./", "shard_2")
-	s2.Add(r1)
-	s2.Add(r2)
+	d1, _ := s1.Get(id1)
+	d2, _ := s1.Get(id2)
+
+	if bytes.Compare(d1, r1) != 0 || bytes.Compare(d2, r2) != 0 {
+		t.Errorf("Corrupted data while writing to shard")
+	}
 }

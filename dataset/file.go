@@ -13,7 +13,7 @@ type File struct {
 	offset int64
 }
 
-// @threadsafe
+// threadsafe
 func (f *File) Write(data []byte) (*Offset, error) {
 	len := int64(len(data))
 
@@ -29,6 +29,18 @@ func (f *File) Write(data []byte) (*Offset, error) {
 	}
 
 	return &Offset{Start: start, End: start + len}, nil
+}
+
+// threadsafe
+func (f *File) Read(o *Offset) ([]byte, error) {
+	data := make([]byte, o.End-o.Start)
+
+	_, err := f.ReadAt(data, o.Start)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
 
 func CreateFile(path string) (*File, error) {

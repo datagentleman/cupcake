@@ -32,6 +32,18 @@ func (s *Shard) Add(data []byte) (int32, error) {
 	return recordID, nil
 }
 
+func (s *Shard) Get(id int32) ([]byte, error) {
+	id -= ((s.ID - 1) * s.RecordsLimit)
+	offset := s.offsets.Get(id)
+
+	data, err := s.storage.Read(offset)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
 func createShard(id, recordsLimit int32, dir, name string) (*Shard, error) {
 	recordsLimit += 1
 
