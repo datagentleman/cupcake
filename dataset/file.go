@@ -2,11 +2,33 @@ package dataset
 
 import (
 	"os"
+	"sync"
 )
 
 type File struct {
 	*os.File
-	Path string
+
+	Path   string
+	mux    sync.Mutex
+	offset int64
+}
+
+// @threadsafe
+func (f *File) Write(data []byte) (*Offset, error) {
+	len := int64(len(data))
+
+	// reserve space for given data
+	f.mux.Lock()
+	start := f.offset
+	f.offset += len
+	f.mux.Unlock()
+
+	_, err := f.WriteAt(data, int64(start))
+	if err != nil {
+		return nil, err
+	}
+
+	return &Offset{Start: start, End: start + len}, nil
 }
 
 func CreateFile(path string) (*File, error) {
@@ -15,7 +37,7 @@ func CreateFile(path string) (*File, error) {
 		return nil, err
 	}
 
-	return &File{File: file, Path: path}, nil
+	return &File{File: file, Path: path, offset: 0}, nil
 }
 
 func FileExists(path string) bool {
