@@ -20,7 +20,6 @@ func Test_Offsets_Add(t *testing.T) {
 	if !reflect.DeepEqual(o.offsets[1], offset1) {
 		t.Errorf("Offsets are not properly saved to file")
 	}
-
 	if !reflect.DeepEqual(o.offsets[2], offset2) {
 		t.Errorf("Offsets are not properly saved to file")
 	}
