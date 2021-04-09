@@ -28,7 +28,7 @@ func Test_Shard_Add(t *testing.T) {
 	d1, _ := s1.Get(id1)
 	d2, _ := s1.Get(id2)
 
-	if bytes.Compare(d1, r1) != 0 || bytes.Compare(d2, r2) != 0 {
+	if bytes.Compare(d1.data, r1) != 0 || bytes.Compare(d2.data, r2) != 0 {
 		t.Errorf("Corrupted data while writing to shard")
 	}
 }

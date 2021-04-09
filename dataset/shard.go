@@ -1,8 +1,11 @@
 package dataset
 
 import (
+	"bytes"
+	"encoding/binary"
 	"path"
 	"sync"
+	"unsafe"
 )
 
 type Shard struct {
@@ -15,14 +18,43 @@ type Shard struct {
 	recordsCount int32
 }
 
+type record struct {
+	id   int32
+	data []byte
+}
+
+func (r record) Bytes() []byte {
+	b := new(bytes.Buffer)
+	recordSize := int32(len(r.data)) + int32(unsafe.Sizeof(r.id))
+
+	binary.Write(b, binary.BigEndian, recordSize)
+	binary.Write(b, binary.BigEndian, r.id)
+	binary.Write(b, binary.BigEndian, r.data)
+
+	return b.Bytes()
+}
+
+func recordFromBytes(data []byte) *record {
+	var recordSize int32
+
+	r := &record{}
+	b := bytes.NewBuffer(data)
+
+	binary.Read(b, binary.BigEndian, &recordSize)
+	binary.Read(b, binary.BigEndian, &r.id)
+
+	r.data = b.Bytes()
+	return r
+}
+
 func (s *Shard) Add(data []byte) (int32, error) {
-	// generate id for new record
 	s.mux.Lock()
 	s.recordsCount += 1
 	id := s.recordsCount + ((s.ID - 1) * s.RecordsLimit)
 	s.mux.Unlock()
 
-	offset, err := s.storage.Write(data)
+	r := &record{id: id, data: data}
+	offset, err := s.storage.Write(r.Bytes())
 	if err != nil {
 		return -1, err
 	}
@@ -31,15 +63,16 @@ func (s *Shard) Add(data []byte) (int32, error) {
 	return id, nil
 }
 
-func (s *Shard) Get(id int32) ([]byte, error) {
+func (s *Shard) Get(id int32) (*record, error) {
 	offset := s.offsets.Get(id)
 
-	data, err := s.storage.Read(offset)
+	b, err := s.storage.Read(offset)
 	if err != nil {
 		return nil, err
 	}
 
-	return data, nil
+	r := recordFromBytes(b)
+	return r, nil
 }
 
 func createShard(id, recordsLimit int32, dir, name string) (*Shard, error) {
