@@ -19,8 +19,7 @@ func (s *Shard) Add(data []byte) (int32, error) {
 	// generate id for new record
 	s.mux.Lock()
 	s.recordsCount += 1
-	recordID := s.recordsCount + ((s.ID - 1) * s.RecordsLimit)
-	offsetID := s.recordsCount
+	id := s.recordsCount + ((s.ID - 1) * s.RecordsLimit)
 	s.mux.Unlock()
 
 	offset, err := s.storage.Write(data)
@@ -28,12 +27,11 @@ func (s *Shard) Add(data []byte) (int32, error) {
 		return -1, err
 	}
 
-	s.offsets.Add(offsetID, offset)
-	return recordID, nil
+	s.offsets.Add(id, offset)
+	return id, nil
 }
 
 func (s *Shard) Get(id int32) ([]byte, error) {
-	id -= ((s.ID - 1) * s.RecordsLimit)
 	offset := s.offsets.Get(id)
 
 	data, err := s.storage.Read(offset)
@@ -45,8 +43,6 @@ func (s *Shard) Get(id int32) ([]byte, error) {
 }
 
 func createShard(id, recordsLimit int32, dir, name string) (*Shard, error) {
-	recordsLimit += 1
-
 	file, err := CreateFile(path.Join(dir, name+".data"))
 	if err != nil {
 		return nil, err

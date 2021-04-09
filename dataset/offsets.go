@@ -7,16 +7,16 @@ type Offset struct {
 
 type Offsets struct {
 	storage *File
-	offsets []*Offset
+	offsets map[int32]*Offset
 	maxSize int32
 }
 
-func (o *Offsets) Add(index int32, offset *Offset) {
-	o.offsets[index] = offset
+func (o *Offsets) Add(key int32, offset *Offset) {
+	o.offsets[key] = offset
 }
 
-func (o *Offsets) Get(index int32) *Offset {
-	return o.offsets[index]
+func (o *Offsets) Get(key int32) *Offset {
+	return o.offsets[key]
 }
 
 func createOffsets(maxSize int32, path string) (*Offsets, error) {
@@ -28,7 +28,7 @@ func createOffsets(maxSize int32, path string) (*Offsets, error) {
 	o := &Offsets{
 		storage: file,
 		maxSize: maxSize,
-		offsets: make([]*Offset, maxSize, maxSize),
+		offsets: make(map[int32]*Offset, maxSize),
 	}
 
 	return o, nil

@@ -21,7 +21,7 @@ func Test_Shard_Add(t *testing.T) {
 	r1 := []byte("record 1")
 	r2 := []byte("record 2")
 
-	s1, _ := createShard(1, 100, "./", "shard_1")
+	s1, _ := createShard(1, 2, "./", "shard_1")
 	id1, _ := s1.Add(r1)
 	id2, _ := s1.Add(r2)
 
