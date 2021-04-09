@@ -66,7 +66,7 @@ func (s *Shard) Add(data []byte) (int32, error) {
 func (s *Shard) Get(id int32) (*record, error) {
 	offset := s.offsets.Get(id)
 
-	b, err := s.storage.Read(offset)
+	b, err := s.storage.ReadOffset(offset)
 	if err != nil {
 		return nil, err
 	}

@@ -32,7 +32,7 @@ func (f *File) Write(data []byte) (*Offset, error) {
 }
 
 // threadsafe
-func (f *File) Read(o *Offset) ([]byte, error) {
+func (f *File) ReadOffset(o *Offset) ([]byte, error) {
 	data := make([]byte, o.End-o.Start)
 
 	_, err := f.ReadAt(data, o.Start)
