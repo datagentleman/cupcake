@@ -61,6 +61,7 @@ func (o *Offsets) readAll() error {
 		offset := offsetFromBytes(b)
 		o.offsets[offset.Key] = offset
 	}
+
 	return nil
 }
 
