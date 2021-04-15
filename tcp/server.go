@@ -7,10 +7,11 @@ import (
 )
 
 func handleClientConnection(connection int) {
+	fmt.Printf("Client connected\n")
 	syscall.Write(connection, []byte("Hello from server :)"))
 }
 
-func parseIPv4Address(ip string, port int) *syscall.SockaddrInet4 {
+func IPv4Address(ip string, port int) *syscall.SockaddrInet4 {
 	ip4 := net.ParseIP(ip).To4()
 
 	return &syscall.SockaddrInet4{
@@ -22,7 +23,7 @@ func parseIPv4Address(ip string, port int) *syscall.SockaddrInet4 {
 func StartServer(ip string, port int) error {
 	fd, _ := syscall.Socket(syscall.AF_INET, syscall.SOCK_STREAM, 0)
 
-	err := syscall.Bind(fd, parseIPv4Address(ip, port))
+	err := syscall.Bind(fd, IPv4Address(ip, port))
 	if err != nil {
 		return err
 	}
@@ -37,6 +38,7 @@ func StartServer(ip string, port int) error {
 		if err != nil {
 			fmt.Print(err)
 		}
+
 		go handleClientConnection(c)
 	}
 }
