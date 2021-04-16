@@ -33,6 +33,7 @@ func (o *Offsets) Add(key int32, offset *Offset) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -87,5 +88,6 @@ func createOffsets(maxSize int32, path string) (*Offsets, error) {
 		maxSize: maxSize,
 		offsets: make(map[int32]*Offset, maxSize),
 	}
+
 	return o, nil
 }

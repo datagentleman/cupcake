@@ -8,14 +8,27 @@ type Client struct {
 	connection int
 }
 
+func (c *Client) Hello() (string, error) {
+	_, err := syscall.Write(c.connection, Message("HELLO"))
+	if err != nil {
+		return "", err
+	}
+
+	r, err := ReadMessage(c)
+	if err != nil {
+		return "", err
+	}
+
+	return string(r), nil
+}
+
 func Connect(ip string, port int) (*Client, error) {
 	conn, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_STREAM, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	addr := IPv4Address(ip, port)
-	err = syscall.Connect(conn, addr)
+	err = syscall.Connect(conn, IPv4Address(ip, port))
 	if err != nil {
 		return nil, err
 	}

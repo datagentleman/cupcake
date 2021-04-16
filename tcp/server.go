@@ -8,7 +8,7 @@ import (
 
 func handleClientConnection(connection int) {
 	fmt.Printf("Client connected\n")
-	syscall.Write(connection, []byte("Hello from server :)"))
+	syscall.Write(connection, Message("World"))
 }
 
 func IPv4Address(ip string, port int) *syscall.SockaddrInet4 {
